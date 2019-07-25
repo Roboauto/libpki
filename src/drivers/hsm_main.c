@@ -40,8 +40,29 @@ static int __set_algIdentifier (PKI_X509_ALGOR_VALUE * alg,
 	pkey = key->value;
 
 	// Gets the Signature Algorithm
-	pkey_type = EVP_MD_pkey_type(digest);
+	pkey_type = EVP_PKEY_id(pkey);
+    int type = EVP_PKEY_type(pkey_type);
 
+    int mdNID = EVP_MD_type(digest);
+    const char * snMD = OBJ_nid2sn(mdNID);
+
+    if(snMD == NULL){
+        return PKI_ERROR(PKI_ERR_ALGOR_SET, "Cannot detect digest algorithm");
+    }
+
+    char snSignatureAlgo[512];
+    int nidSignatureAlgo = 0;
+    //TODO better detection. But we only need EC anyways
+    if(type == NID_X9_62_id_ecPublicKey){
+        sprintf(snSignatureAlgo, "ecdsa-with-%s", snMD);
+        nidSignatureAlgo = OBJ_sn2nid(snSignatureAlgo);
+    }else{
+        nidSignatureAlgo = EVP_MD_pkey_type(digest);
+    }
+
+    if(nidSignatureAlgo == 0){
+        return PKI_ERROR(PKI_ERR_ALGOR_SET, "Cannot obtain signatureAlgorithm from digest/key");
+    }
 #ifdef ENABLE_AMETH
 
 	struct my_meth_st *ameth     = NULL;
@@ -67,7 +88,7 @@ static int __set_algIdentifier (PKI_X509_ALGOR_VALUE * alg,
 #endif // End of aMeth
 
 	// Sets the Algorithms details
-	if (!X509_ALGOR_set0(alg, OBJ_nid2obj(pkey_type), param_type, NULL))
+	if (!X509_ALGOR_set0(alg, OBJ_nid2obj(nidSignatureAlgo), param_type, NULL))
 		return PKI_ERROR(PKI_ERR_ALGOR_SET, "Cannot set the algorithm");
 
 	// All Done

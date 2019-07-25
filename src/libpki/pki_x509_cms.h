@@ -207,7 +207,7 @@ int PKI_X509_CMS_add_recipient_tk(const PKI_X509_CMS * cms,
 int PKI_X509_CMS_get_recipients_num(const PKI_X509_CMS * const cms);
 
 PKI_X509_CMS_RECIPIENT_INFO * PKI_X509_CMS_get_recipient_info(
-                                  PKI_X509_CMS * const cms,
+                                  const PKI_X509_CMS * const cms,
                                   int                  idx );
 
 int PKI_X509_CMS_recipient_num(const PKI_X509_CMS  * const cms,

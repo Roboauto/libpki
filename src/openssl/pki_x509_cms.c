@@ -86,7 +86,7 @@ int PKI_X509_CMS_get_signers_num(const PKI_X509_CMS * const cms) {
 }
 
 PKI_X509_CMS_RECIPIENT_INFO * PKI_X509_CMS_get_recipient_info(
-					                            PKI_X509_CMS         * const cms,
+					                            const PKI_X509_CMS         * const cms,
 					                            int                    idx ) {
 
 	STACK_OF(CMS_RecipientInfo) *r_sk = NULL;

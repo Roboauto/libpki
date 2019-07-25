@@ -44,7 +44,7 @@ PKI_TBS_ASN1 * __datatype_get_asn1_ref(PKI_DATATYPE   type,
 	switch (type) {
 
 		case PKI_DATATYPE_X509_CERT : {
-			it = &X509_CINF_it;
+			it = X509_CINF_it();
 #if OPENSSL_VERSION_NUMBER > 0x1010000fL
 			p = &(((LIBPKI_X509_CERT *)v)->cert_info);
 #else
@@ -53,7 +53,7 @@ PKI_TBS_ASN1 * __datatype_get_asn1_ref(PKI_DATATYPE   type,
 		} break;
 
 		case PKI_DATATYPE_X509_CRL : {
-			it = &X509_CRL_INFO_it;
+			it = X509_CRL_INFO_it();
 #if OPENSSL_VERSION_NUMBER > 0x1010000fL
 			p = &(((PKI_X509_CRL_VALUE *)v)->crl);
 #else
@@ -62,7 +62,7 @@ PKI_TBS_ASN1 * __datatype_get_asn1_ref(PKI_DATATYPE   type,
 		} break;
 
 		case PKI_DATATYPE_X509_REQ : {
-			it = &X509_REQ_INFO_it;
+			it = X509_REQ_INFO_it();
 #if OPENSSL_VERSION_NUMBER > 0x1010000fL
 			p = &(((LIBPKI_X509_REQ *)v)->req_info);
 #else
@@ -71,7 +71,7 @@ PKI_TBS_ASN1 * __datatype_get_asn1_ref(PKI_DATATYPE   type,
 		} break;
 
 		case PKI_DATATYPE_X509_OCSP_REQ : {
-			it = &OCSP_REQINFO_it;
+			it = OCSP_REQINFO_it();
 #if OPENSSL_VERSION_NUMBER > 0x1010000fL
 			p = &(((PKI_X509_OCSP_REQ_VALUE *)v)->tbsRequest);
 #else
@@ -80,7 +80,7 @@ PKI_TBS_ASN1 * __datatype_get_asn1_ref(PKI_DATATYPE   type,
 		} break;
 
 		case PKI_DATATYPE_X509_OCSP_RESP : {
-			it = &OCSP_RESPDATA_it;
+			it = OCSP_RESPDATA_it();
 #if OPENSSL_VERSION_NUMBER > 0x1010000fL
 			p = &(((PKI_OCSP_RESP *)v)->bs->tbsResponseData);
 #else
@@ -89,17 +89,17 @@ PKI_TBS_ASN1 * __datatype_get_asn1_ref(PKI_DATATYPE   type,
 		} break;
 
 		case PKI_DATATYPE_X509_PRQP_REQ : {
-			it = &PKI_PRQP_REQ_it;
+			it = PKI_PRQP_REQ_it();
 			p = ((PKI_X509_PRQP_REQ_VALUE *)v)->requestData;
 		} break;
 
 		case PKI_DATATYPE_X509_PRQP_RESP : {
-			it = &PKI_PRQP_RESP_it;
+			it = PKI_PRQP_RESP_it();
 			p = ((PKI_X509_PRQP_RESP_VALUE *)v)->respData;
 		} break;
 
 		case PKI_DATATYPE_X509_CMS : {
-			it = &CMS_ContentInfo_it;
+			it = CMS_ContentInfo_it();
 			p = NULL;
 		}
 
