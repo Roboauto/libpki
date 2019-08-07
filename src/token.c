@@ -26,6 +26,26 @@ PKI_CRED *PKI_TOKEN_cred_cb_stdin ( char * prompt ) {
 	return ( ret );
 }
 
+char *trim_whitespace(char *str)
+{
+    char *end;
+
+    // Trim leading space
+    while(isspace((unsigned char)*str)) str++;
+
+    if(*str == 0)  // All spaces?
+        return str;
+
+    // Trim trailing space
+    end = str + strlen(str) - 1;
+    while(end > str && isspace((unsigned char)*end)) end--;
+
+    // Write new null terminator character
+    end[1] = '\0';
+
+    return str;
+}
+
 PKI_CRED *PKI_TOKEN_cred_cb_file ( char * prompt ) {
     char buffer[512] = {0};
     PKI_CRED *ret = NULL;
@@ -45,6 +65,7 @@ PKI_CRED *PKI_TOKEN_cred_cb_file ( char * prompt ) {
     }
 
     fgets(buffer, 512, f);
+    trim_whitespace(buffer);
     if( strlen(buffer) > 0 ) ret->password = strdup(buffer);
 
     fclose(f);
@@ -681,6 +702,7 @@ int PKI_TOKEN_load_config ( PKI_TOKEN *tk, char *tk_name ) {
 	}
 	else
 	{
+        PKI_log_debug("INFO, making empty credentials.");
 		if (tk->cred == NULL)
 		{
 			tk->cred = PKI_CRED_new(NULL, tmp_s);

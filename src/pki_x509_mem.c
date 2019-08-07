@@ -63,8 +63,8 @@ static void * __get_data_callback(PKI_MEM *mem, const PKI_X509_CALLBACKS *cb,
 
 	// If we have credentials (password type), let's get a reference to it
 	if (cred && cred->password) pwd = (char *) cred->password;
-    if(cred)
-        PKI_log_debug("__get_data_callback()::Password (%s)", cred->password);
+    //if(cred)
+    //    PKI_log_debug("__get_data_callback()::Password (%s)", cred->password);
 
 	// Create a read only memory buffer - it's faster than a read/write one
 	if( (ro = BIO_new_mem_buf(mem->data, (int)mem->size)) == NULL) {
