@@ -26,6 +26,34 @@ PKI_CRED *PKI_TOKEN_cred_cb_stdin ( char * prompt ) {
 	return ( ret );
 }
 
+PKI_CRED *PKI_TOKEN_cred_cb_file ( char * prompt ) {
+    char buffer[512] = {0};
+    PKI_CRED *ret = NULL;
+
+    if((ret = PKI_CRED_new_null()) == NULL ) {
+        PKI_log_debug("ERROR, can not create null credentials\n");
+        return ( NULL );
+    }
+
+    FILE * f = fopen(prompt, "r");
+
+    if(f == NULL){
+        PKI_log_debug("ERROR, can not open password file: %s!\n", prompt);
+        ret->username = NULL;
+        ret->password = NULL;
+        return ret;
+    }
+
+    fgets(buffer, 512, f);
+    if( strlen(buffer) > 0 ) ret->password = strdup(buffer);
+
+    fclose(f);
+
+    PKI_log_debug("INFO, Password of token: %s is %s!\n", prompt, ret->password);
+    ret->username = NULL;
+    return ( ret );
+}
+
 PKI_CRED *PKI_TOKEN_cred_cb_env ( char * env ) {
 
 	PKI_CRED *ret = NULL;
@@ -61,12 +89,15 @@ PKI_CRED *PKI_TOKEN_cred_get(PKI_TOKEN *tk, char *st)
 		return ( NULL );
 	}
 
+    PKI_log_debug("INFO, getting credentials!\n");
 	if (!tk->cred_cb) 
 	{
+        PKI_log_debug("INFO, no credentials found!\n");
 		ret = PKI_CRED_new(NULL, "");
 	}
 	else
 	{
+        PKI_log_debug("INFO, credentials callback!\n");
 		if (!st) st = tk->cred_prompt;
 		ret = PKI_CRED_dup(tk->cred_cb ( st ));
 	}
@@ -612,6 +643,7 @@ int PKI_TOKEN_load_config ( PKI_TOKEN *tk, char *tk_name ) {
 
 		if ((passin = PKI_CONFIG_get_value(tk->config,"/tokenConfig/passin")) != NULL)
 		{
+            PKI_log_debug("INFO, passin load: %s.", passin);
 			if (strncmp_nocase( passin, "env:", 4) == 0)
 			{
 				PKI_TOKEN_cred_set_cb(tk, PKI_TOKEN_cred_cb_env, passin+4);
@@ -624,6 +656,10 @@ int PKI_TOKEN_load_config ( PKI_TOKEN *tk, char *tk_name ) {
 			{
 				PKI_TOKEN_cred_set_cb(tk, NULL, NULL);
 			}
+            else if (strncmp_nocase(passin, "file", 4) == 0)
+            {
+                PKI_TOKEN_cred_set_cb(tk, PKI_TOKEN_cred_cb_file, passin+5);
+            }
 			else if (strlen(passin) < 1)
 			{
 				PKI_TOKEN_cred_set_cb(tk, NULL, NULL);
@@ -765,7 +801,7 @@ int PKI_TOKEN_cred_set_cb(PKI_TOKEN *tk, PKI_CRED * (*cb)(char *), char *prompt)
 	if (tk->cred_prompt) PKI_Free(tk->cred_prompt);
 
 	if( prompt ) tk->cred_prompt = strdup( prompt );
-
+    PKI_log_debug("INFO, PKI_TOKEN_cred_set_cb: credentials set. Prompt: %s!", prompt);
 	return ( PKI_OK );
 };
 
@@ -1727,8 +1763,9 @@ int PKI_TOKEN_load_keypair(PKI_TOKEN *tk, char *url_string)
 	if ((pkey = PKI_X509_KEYPAIR_get_url( url, PKI_DATA_FORMAT_UNKNOWN,
 											tk->cred, tk->hsm )) == NULL) {
 		/* Can not load the keypair from the given URL */
-		if (url) URL_free( url );
-		PKI_log_debug("PKI_TOKEN_load_keypair()::Can not load key (%s)", url->url_s);
+        PKI_log_debug("PKI_TOKEN_load_keypair()::Can not load key (%s)", url->url_s);
+		URL_free( url );
+
 		tk->status |= PKI_TOKEN_STATUS_LOGIN_ERR;
 
 		return PKI_ERROR(PKI_ERR_TOKEN_KEYPAIR_LOAD, url_string);

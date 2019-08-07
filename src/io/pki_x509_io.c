@@ -81,6 +81,7 @@ PKI_X509 *PKI_X509_get_url(URL * url,
 
 	// Gets the stack of PKI_X509 from the provided URL
 	if ((sk = PKI_X509_STACK_get_url(url, type, format, cred, hsm)) == NULL) {
+        PKI_log_debug("PKI_X509_get_url()::PKI_X509_STACK_get_url failed with url (%s)", url->url_s);
 		return (NULL);
 	}
 
